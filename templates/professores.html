@@ -33,6 +33,7 @@
             <th>Registro</th>
             <th>Area</th>
             <th>Disciplinas</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -43,9 +44,10 @@
               <td>{{ professor.registro }}</td>
               <td>{{ professor.area }}</td>
               <td>{{ professor.disciplinas or 'Nenhuma disciplina atribuida.' }}</td>
+              <td><a class="ghost-link" href="{{ url_for('editar_professor', professor_id=professor.id) }}">Editar</a></td>
             </tr>
           {% else %}
-            <tr><td colspan="5" class="empty">Nenhum professor cadastrado.</td></tr>
+            <tr><td colspan="6" class="empty">Nenhum professor cadastrado.</td></tr>
           {% endfor %}
         </tbody>
       </table>

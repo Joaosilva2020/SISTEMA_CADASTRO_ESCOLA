@@ -33,6 +33,7 @@
             <th>Matricula</th>
             <th>Curso</th>
             <th>Disciplinas</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -43,9 +44,10 @@
               <td>{{ aluno.matricula }}</td>
               <td>{{ aluno.curso }}</td>
               <td>{{ aluno.disciplinas or 'Nenhuma disciplina matriculada.' }}</td>
+              <td><a class="ghost-link" href="{{ url_for('editar_aluno', aluno_id=aluno.id) }}">Editar</a></td>
             </tr>
           {% else %}
-            <tr><td colspan="5" class="empty">Nenhum aluno cadastrado.</td></tr>
+            <tr><td colspan="6" class="empty">Nenhum aluno cadastrado.</td></tr>
           {% endfor %}
         </tbody>
       </table>

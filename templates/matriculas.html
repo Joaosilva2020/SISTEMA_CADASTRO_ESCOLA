@@ -57,9 +57,12 @@
               <td>{{ matricula.disciplina }}</td>
               <td>{{ matricula.codigo }}</td>
               <td>
-                <form class="inline-form" method="post" action="{{ url_for('excluir_matricula', matricula_id=matricula.id) }}">
+                <div class="row-actions">
+                  <a class="ghost-link" href="{{ url_for('editar_matricula', matricula_id=matricula.id) }}">Editar</a>
+                  <form class="inline-form" method="post" action="{{ url_for('excluir_matricula', matricula_id=matricula.id) }}">
                   <button class="ghost" type="submit">Remover</button>
-                </form>
+                  </form>
+                </div>
               </td>
             </tr>
           {% else %}

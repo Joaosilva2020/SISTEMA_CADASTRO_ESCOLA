@@ -41,6 +41,7 @@
             <th>Professor</th>
             <th>Carga</th>
             <th>Alunos</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -51,9 +52,10 @@
               <td>{{ disciplina.professor }}</td>
               <td>{{ disciplina.carga_horaria }}h</td>
               <td>{{ disciplina.total_alunos }}</td>
+              <td><a class="ghost-link" href="{{ url_for('editar_disciplina', disciplina_id=disciplina.id) }}">Editar</a></td>
             </tr>
           {% else %}
-            <tr><td colspan="5" class="empty">Nenhuma disciplina cadastrada.</td></tr>
+            <tr><td colspan="6" class="empty">Nenhuma disciplina cadastrada.</td></tr>
           {% endfor %}
         </tbody>
       </table>

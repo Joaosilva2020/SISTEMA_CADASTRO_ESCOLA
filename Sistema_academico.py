@@ -52,6 +52,67 @@ class SistemaAcademico:
         disciplina.matricular_aluno(aluno)
         print(f"{aluno.nome} foi matriculado em {disciplina.nome}.")
 
+    def editar_aluno(self, matricula, nome=None, cpf=None, nova_matricula=None, curso=None):
+        aluno = self.buscar_aluno_por_matricula(matricula)
+        if aluno is None:
+            print("Aluno nao encontrado.")
+            return False
+
+        if nome is not None:
+            aluno.nome = nome
+        if cpf is not None:
+            aluno.cpf = cpf
+        if nova_matricula is not None:
+            aluno.matricula = nova_matricula
+        if curso is not None:
+            aluno.curso = curso
+
+        print("Aluno atualizado com sucesso.")
+        return True
+
+    def editar_professor(self, registro, nome=None, cpf=None, novo_registro=None, area=None):
+        professor = self.buscar_professor_por_registro(registro)
+        if professor is None:
+            print("Professor nao encontrado.")
+            return False
+
+        if nome is not None:
+            professor.nome = nome
+        if cpf is not None:
+            professor.cpf = cpf
+        if novo_registro is not None:
+            professor.registro = novo_registro
+        if area is not None:
+            professor.area = area
+
+        print("Professor atualizado com sucesso.")
+        return True
+
+    def editar_disciplina(
+        self,
+        codigo,
+        nome=None,
+        novo_codigo=None,
+        carga_horaria=None,
+        professor=None,
+    ):
+        disciplina = self.buscar_disciplina_por_codigo(codigo)
+        if disciplina is None:
+            print("Disciplina nao encontrada.")
+            return False
+
+        if nome is not None:
+            disciplina.nome = nome
+        if novo_codigo is not None:
+            disciplina.codigo = novo_codigo
+        if carga_horaria is not None:
+            disciplina.carga_horaria = carga_horaria
+        if professor is not None:
+            disciplina.definir_professor(professor)
+
+        print("Disciplina atualizada com sucesso.")
+        return True
+
     def listar_alunos(self):
         print("\nALUNOS")
         for aluno in self.alunos:

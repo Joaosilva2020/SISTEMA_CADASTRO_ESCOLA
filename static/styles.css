@@ -181,6 +181,10 @@ h2 {
   align-self: start;
 }
 
+.edit-panel {
+  max-width: 560px;
+}
+
 label {
   display: grid;
   gap: 6px;
@@ -255,6 +259,35 @@ th {
 
 .inline-form {
   margin: 0;
+}
+
+.row-actions,
+.form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.form-actions {
+  margin-top: 18px;
+}
+
+.ghost-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border-radius: 6px;
+  color: var(--primary);
+  background: #e8f1f8;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.ghost-link:hover {
+  color: #ffffff;
+  background: var(--primary-dark);
 }
 
 .ghost {

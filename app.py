@@ -156,6 +156,37 @@ def alunos():
     return render_template("alunos.html", alunos=lista)
 
 
+@app.route("/alunos/<int:aluno_id>/editar", methods=["GET", "POST"])
+def editar_aluno(aluno_id):
+    aluno = fetch_one("SELECT * FROM alunos WHERE id = %s", (aluno_id,))
+    if not aluno:
+        flash("Aluno nao encontrado.", "warning")
+        return redirect(url_for("alunos"))
+
+    if request.method == "POST":
+        try:
+            execute(
+                """
+                UPDATE alunos
+                   SET nome = %s, cpf = %s, matricula = %s, curso = %s
+                 WHERE id = %s
+                """,
+                (
+                    request.form["nome"].strip(),
+                    request.form["cpf"].strip(),
+                    request.form["matricula"].strip(),
+                    request.form["curso"].strip(),
+                    aluno_id,
+                ),
+            )
+            flash("Aluno atualizado com sucesso.", "success")
+            return redirect(url_for("alunos"))
+        except IntegrityError:
+            flash("Ja existe aluno com este CPF ou matricula.", "warning")
+
+    return render_template("editar_aluno.html", aluno=aluno)
+
+
 @app.route("/professores", methods=["GET", "POST"])
 def professores():
     if request.method == "POST":
@@ -189,6 +220,37 @@ def professores():
         """
     )
     return render_template("professores.html", professores=lista)
+
+
+@app.route("/professores/<int:professor_id>/editar", methods=["GET", "POST"])
+def editar_professor(professor_id):
+    professor = fetch_one("SELECT * FROM professores WHERE id = %s", (professor_id,))
+    if not professor:
+        flash("Professor nao encontrado.", "warning")
+        return redirect(url_for("professores"))
+
+    if request.method == "POST":
+        try:
+            execute(
+                """
+                UPDATE professores
+                   SET nome = %s, cpf = %s, registro = %s, area = %s
+                 WHERE id = %s
+                """,
+                (
+                    request.form["nome"].strip(),
+                    request.form["cpf"].strip(),
+                    request.form["registro"].strip(),
+                    request.form["area"].strip(),
+                    professor_id,
+                ),
+            )
+            flash("Professor atualizado com sucesso.", "success")
+            return redirect(url_for("professores"))
+        except IntegrityError:
+            flash("Ja existe professor com este CPF ou registro.", "warning")
+
+    return render_template("editar_professor.html", professor=professor)
 
 
 @app.route("/disciplinas", methods=["GET", "POST"])
@@ -227,6 +289,44 @@ def disciplinas():
     )
     return render_template(
         "disciplinas.html", disciplinas=lista, professores=professores_lista
+    )
+
+
+@app.route("/disciplinas/<int:disciplina_id>/editar", methods=["GET", "POST"])
+def editar_disciplina(disciplina_id):
+    disciplina = fetch_one("SELECT * FROM disciplinas WHERE id = %s", (disciplina_id,))
+    if not disciplina:
+        flash("Disciplina nao encontrada.", "warning")
+        return redirect(url_for("disciplinas"))
+
+    professores_lista = fetch_all("SELECT id, nome FROM professores ORDER BY nome")
+
+    if request.method == "POST":
+        professor_id = request.form.get("professor_id") or None
+        try:
+            execute(
+                """
+                UPDATE disciplinas
+                   SET nome = %s, codigo = %s, carga_horaria = %s, professor_id = %s
+                 WHERE id = %s
+                """,
+                (
+                    request.form["nome"].strip(),
+                    request.form["codigo"].strip(),
+                    int(request.form["carga_horaria"]),
+                    professor_id,
+                    disciplina_id,
+                ),
+            )
+            flash("Disciplina atualizada com sucesso.", "success")
+            return redirect(url_for("disciplinas"))
+        except IntegrityError:
+            flash("Ja existe disciplina com este codigo.", "warning")
+
+    return render_template(
+        "editar_disciplina.html",
+        disciplina=disciplina,
+        professores=professores_lista,
     )
 
 
@@ -287,6 +387,43 @@ def matriculas():
         alunos=alunos_lista,
         disciplinas=disciplinas_lista,
         matriculas=lista,
+    )
+
+
+@app.route("/matriculas/<int:matricula_id>/editar", methods=["GET", "POST"])
+def editar_matricula(matricula_id):
+    matricula = fetch_one("SELECT * FROM matriculas WHERE id = %s", (matricula_id,))
+    if not matricula:
+        flash("Matricula nao encontrada.", "warning")
+        return redirect(url_for("matriculas"))
+
+    alunos_lista = fetch_all("SELECT id, nome, matricula FROM alunos ORDER BY nome")
+    disciplinas_lista = fetch_all("SELECT id, nome, codigo FROM disciplinas ORDER BY nome")
+
+    if request.method == "POST":
+        try:
+            execute(
+                """
+                UPDATE matriculas
+                   SET aluno_id = %s, disciplina_id = %s, ativo = 1, removido_em = NULL
+                 WHERE id = %s
+                """,
+                (
+                    request.form["aluno_id"],
+                    request.form["disciplina_id"],
+                    matricula_id,
+                ),
+            )
+            flash("Matricula atualizada com sucesso.", "success")
+            return redirect(url_for("matriculas"))
+        except IntegrityError:
+            flash("Este aluno ja esta matriculado nessa disciplina.", "warning")
+
+    return render_template(
+        "editar_matricula.html",
+        matricula=matricula,
+        alunos=alunos_lista,
+        disciplinas=disciplinas_lista,
     )
 
 
