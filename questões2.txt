@@ -1,43 +1,63 @@
-20 perguntas sobre orientacao a objetos no Sistema Academico
+20 perguntas respondidas sobre orientacao a objetos no Sistema Academico
 
 Projeto: Sistema Academico
 
 1. O que e uma classe e quais classes foram criadas neste projeto?
+Resposta: Uma classe é um modelo ou molde que define a estrutura (atributos) e o comportamento (métodos) para criar objetos. Neste projeto foram criadas cinco classes: Pessoa (classe base), Aluno (herda de Pessoa), Professor (herda de Pessoa), Disciplina e SistemaAcademico.
 
 2. O que e um objeto e quais objetos sao instanciados na funcao main de Sistema_academico.py?
+Resposta: Um objeto é uma instância específica de uma classe, ou seja, uma cópia criada a partir do molde definido pela classe. Na função main são instanciados: sistema (SistemaAcademico), professor (Professor), aluno_1 e aluno_2 (Aluno) e disciplina (Disciplina).
 
 3. Qual e a responsabilidade da classe Pessoa dentro do projeto?
+Resposta: A classe Pessoa é a classe base (superclasse) que encapsula dados comuns a todos os usuários do sistema. Ela define os atributos nome e cpf e o método __str__, que serão herdados por Aluno e Professor, evitando duplicação de código.
 
 4. Por que Aluno e Professor herdam da classe Pessoa?
+Resposta: Porque alunos e professores também são pessoas e compartilham características comuns (nome, CPF). A herança permite reutilizar código, evita duplicação de atributos e métodos, e estabelece uma hierarquia lógica que reflete a relação "é um(a)" do mundo real.
 
 5. Quais atributos a classe Aluno recebe diretamente da classe Pessoa?
+Resposta: A classe Aluno herda da classe Pessoa os atributos nome e cpf através do super().__init__(nome, cpf) no construtor. Estes atributos são compartilhados por todo aluno instanciado.
 
 6. Quais atributos sao especificos da classe Aluno?
+Resposta: Os atributos específicos de Aluno são: matricula (identificador único do aluno), curso (programa academico), e disciplinas (lista dinâmica que armazena objetos Disciplina em que o aluno está matriculado).
 
 7. Quais atributos sao especificos da classe Professor?
+Resposta: Os atributos específicos de Professor são: registro (matrícula do professor), area (especialidade/departamento), e disciplinas (lista dinâmica que armazena objetos Disciplina atribuídos ao professor).
 
 8. Qual e a responsabilidade da classe Disciplina no sistema?
+Resposta: A classe Disciplina representa uma disciplina acadêmica e gerencia as associações bidirecionais entre professores e alunos. Ela armazena nome, codigo, carga_horaria, professor (referência) e alunos (lista), além de métodos para associar professores e matricular alunos.
 
 9. Como o metodo super() e utilizado nos construtores de Aluno e Professor?
+Resposta: O super() é utilizado para chamar o construtor da classe base (Pessoa). Em ambas as subclasses, super().__init__(nome, cpf) inicializa os atributos herdados, permitindo que Aluno e Professor depois inicializem seus atributos específicos (matricula/registro, curso/area, etc).
 
 10. O que o metodo __init__ faz em cada classe do projeto?
+Resposta: O método __init__ é o construtor que inicializa os atributos de cada objeto. Pessoa: nome, cpf. Aluno: chama super().__init__, depois inicializa matricula, curso, disciplinas=[]. Professor: chama super().__init__, depois inicializa registro, area, disciplinas=[]. Disciplina: nome, codigo, carga_horaria, professor=None, alunos=[]. SistemaAcademico: alunos=[], professores=[], disciplinas=[].
 
 11. O que o metodo __str__ permite fazer ao imprimir objetos como Aluno, Professor e Disciplina?
+Resposta: O método __str__ personaliza a representação em string de um objeto, permitindo exibições legíveis. Pessoa mostra: nome - CPF: cpf. Aluno mostra: Aluno: nome | CPF: cpf | Matricula: matricula | Curso: curso. Professor e Disciplina exibem dados similares organizados. Facilita debug e exibição em relatórios.
 
 12. Como acontece a associacao entre um aluno e uma disciplina?
+Resposta: A associação é bidirecional e acontece através do método matricular_aluno(aluno) da classe Disciplina. Este método: (1) verifica se o aluno não está duplicado, (2) adiciona o aluno à lista self.alunos da disciplina, e (3) chama aluno.adicionar_disciplina(self), sincronizando ambos os lados.
 
 13. Como acontece a associacao entre um professor e uma disciplina?
+Resposta: A associação é bidirecional e acontece através do método definir_professor(professor) da classe Disciplina. Este método: (1) atribui o professor à variável self.professor, e (2) chama professor.adicionar_disciplina(self), registrando a disciplina na lista do professor.
 
 14. Por que a classe Disciplina possui uma lista de alunos?
+Resposta: Porque uma disciplina pode ter múltiplos alunos matriculados (relação um-para-muitos). A lista self.alunos permite: (1) armazenar todos os alunos vinculados, (2) consultar quantos alunos estão matriculados, (3) remover alunos quando necessário, e (4) gerar relatórios com dados da turma.
 
 15. Por que a classe Aluno possui uma lista de disciplinas?
+Resposta: Porque um aluno pode estar matriculado em múltiplas disciplinas (relação muitos-para-muitos). A lista self.disciplinas permite: (1) armazenar todas as disciplinas do aluno, (2) consultar o histórico acadêmico, (3) validar matrículas duplicadas, e (4) facilitar consultas do tipo "quais disciplinas tem o aluno?".
 
 16. Como o metodo matricular_aluno ajuda a manter a relacao entre aluno e disciplina?
+Resposta: O método matricular_aluno mantém a relação bidirecional sincronizada. Ele: (1) verifica se o aluno já existe em self.alunos para evitar duplicações, (2) adiciona o aluno à lista de alunos da disciplina, (3) chama aluno.adicionar_disciplina(self) para registrar a disciplina no aluno, garantindo consistência dos dois lados da associação.
 
 17. Como o metodo definir_professor ajuda a manter a relacao entre professor e disciplina?
+Resposta: O método definir_professor mantém a relação bidirecional. Ele: (1) atribui o professor à disciplina (self.professor = professor), (2) chama professor.adicionar_disciplina(self) para registrar a disciplina no professor. Assim, ambos os lados ficam sincronizados: a disciplina sabe seu professor e o professor conhece suas disciplinas.
 
 18. O que o metodo remover_dados da classe Aluno faz e quais atributos ele modifica?
+Resposta: O método remover_dados realiza uma limpeza completa do aluno: (1) percorre todas as disciplinas do aluno e o remove da lista de alunos de cada disciplina, (2) limpa nome e cpf para string vazia, (3) limpa matricula e curso para string vazia, (4) limpa a lista self.disciplinas com clear(). Usado para deletar alunos da base de dados mantendo integridade referencial.
 
 19. Qual e a responsabilidade da classe SistemaAcademico em relacao as outras classes?
+Resposta: A classe SistemaAcademico funciona como um gestor central do sistema OO. Ela: (1) mantém listas de alunos, professores e disciplinas, (2) fornece métodos CRUD (cadastro, edição, deleção), (3) realiza buscas por matrícula/registro/código, (4) coordena matrículas aluno-disciplina, (5) gera relatórios em JSON e PDF com dados consolidados.
 
 20. Como os conceitos de classe, objeto, heranca, encapsulamento e associacao aparecem no projeto?
+Resposta: (1) CLASSE: Pessoa, Aluno, Professor, Disciplina, SistemaAcademico definem estruturas e comportamentos. (2) OBJETO: Instâncias criadas na main (professor, aluno_1, aluno_2, disciplina, sistema). (3) HERANÇA: Aluno e Professor herdam de Pessoa via super().__init__. (4) ENCAPSULAMENTO: Cada classe controla seus atributos (privados conceptualmente) e métodos. (5) ASSOCIAÇÃO: Relacionamentos aluno-disciplina (muitos-para-muitos) e professor-disciplina (um-para-muitos) mantidos via listas e métodos sincronizadores.

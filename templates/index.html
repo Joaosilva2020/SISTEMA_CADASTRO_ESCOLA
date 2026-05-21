@@ -5,11 +5,10 @@
   <div>
     <p class="eyebrow">Painel</p>
     <h1>Gestao academica</h1>
-    <p class="database-note">Banco em uso: {{ database_label }}</p>
   </div>
   <div class="actions">
-    <a class="button" href="{{ url_for('baixar_relatorio_pdf') }}">Relatorio PDF</a>
-    <a class="button secondary" href="{{ url_for('baixar_relatorio_json') }}">Relatorio JSON</a>
+    <a class="button report-button" href="{{ url_for('baixar_relatorio_pdf') }}">Relatorio PDF</a>
+    <a class="button secondary report-button" href="{{ url_for('baixar_relatorio_json') }}">Relatorio JSON</a>
   </div>
 </section>
 
