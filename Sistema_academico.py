@@ -213,7 +213,7 @@ def main():
         curso="Sistemas de Informacao",
     )
     aluno_2 = Aluno(
-        nome="Ana Lima",
+        nome="Glenda-desmotivada",
         cpf="999.888.777-66",
         matricula="2026002",
         curso="Ciencia da Computacao",
