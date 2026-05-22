@@ -2,11 +2,25 @@ import os
 from io import BytesIO
 
 from flask import Flask, flash, redirect, render_template, request, send_file, url_for
-from mysql.connector import Error
 
-from db import IntegrityError, database_label, execute, fetch_all, fetch_one, is_sqlite
+from db import (
+    DatabaseError,
+    IntegrityError,
+    database_label,
+    execute,
+    fetch_all,
+    fetch_one,
+    is_sqlite,
+)
 from relatorios import gerar_relatorio_json, gerar_relatorio_pdf
 
+from auth import (
+    autenticar,
+    login_required,
+    login_usuario,
+    logout_usuario,
+    usuario_logado,
+)
 
 app = Flask(__name__)
 app.secret_key = os.getenv("FLASK_SECRET_KEY", "sistema-academico-dev")
@@ -18,7 +32,7 @@ def get_dashboard_counts():
         "professores": fetch_one("SELECT COUNT(*) AS total FROM professores")["total"],
         "disciplinas": fetch_one("SELECT COUNT(*) AS total FROM disciplinas")["total"],
         "matriculas": fetch_one(
-            "SELECT COUNT(*) AS total FROM matriculas WHERE ativo = 1"
+            "SELECT COUNT(*) AS total FROM matriculas WHERE ativo = TRUE"
         )["total"],
     }
 
@@ -52,7 +66,7 @@ def get_dados_relatorio_banco():
         """
         SELECT m.id, a.nome AS aluno, a.matricula,
                d.nome AS disciplina, d.codigo,
-               CASE WHEN m.ativo = 1 THEN 'ativa' ELSE 'removida' END AS status,
+               CASE WHEN m.ativo = TRUE THEN 'ativa' ELSE 'removida' END AS status,
                m.criado_em, m.removido_em
           FROM matriculas m
           JOIN alunos a ON a.id = m.aluno_id
@@ -70,12 +84,41 @@ def get_dados_relatorio_banco():
     }
 
 
-@app.errorhandler(Error)
+@app.errorhandler(DatabaseError)
 def handle_database_error(error):
     return render_template("erro.html", error=error), 500
 
 
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if usuario_logado():
+        return redirect(url_for("index"))
+
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        senha = request.form.get("senha", "")
+        usuario = autenticar(username, senha)
+
+        if usuario:
+            login_usuario(usuario)
+            flash(f"Bem-vindo, {usuario['nome']}!", "success")
+            destino = request.args.get("next") or url_for("index")
+            return redirect(destino)
+
+        flash("Usuario ou senha incorretos.", "warning")
+
+    return render_template("login.html")
+
+
+@app.post("/logout")
+def logout():
+    logout_usuario()
+    flash("Voce saiu do sistema.", "success")
+    return redirect(url_for("login"))
+
+
 @app.route("/")
+@login_required
 def index():
     counts = get_dashboard_counts()
     disciplinas = fetch_all(
@@ -85,7 +128,7 @@ def index():
                COUNT(m.aluno_id) AS total_alunos
           FROM disciplinas d
           LEFT JOIN professores p ON p.id = d.professor_id
-          LEFT JOIN matriculas m ON m.disciplina_id = d.id AND m.ativo = 1
+          LEFT JOIN matriculas m ON m.disciplina_id = d.id AND m.ativo = TRUE
          GROUP BY d.id, d.nome, d.codigo, d.carga_horaria, p.nome
          ORDER BY d.nome
         """
@@ -99,6 +142,7 @@ def index():
 
 
 @app.get("/relatorios/json")
+@login_required
 def baixar_relatorio_json():
     conteudo = gerar_relatorio_json(get_dados_relatorio_banco())
     return send_file(
@@ -110,6 +154,7 @@ def baixar_relatorio_json():
 
 
 @app.get("/relatorios/pdf")
+@login_required
 def baixar_relatorio_pdf():
     conteudo = gerar_relatorio_pdf(get_dados_relatorio_banco())
     return send_file(
@@ -121,6 +166,7 @@ def baixar_relatorio_pdf():
 
 
 @app.route("/alunos", methods=["GET", "POST"])
+@login_required
 def alunos():
     if request.method == "POST":
         try:
@@ -148,13 +194,17 @@ def alunos():
         filtro_nome = "WHERE LOWER(a.nome) LIKE LOWER(%s)"
         params = (f"%{pesquisa}%",)
 
-    group_concat = "GROUP_CONCAT(d.nome, ', ')" if is_sqlite() else "GROUP_CONCAT(d.nome ORDER BY d.nome SEPARATOR ', ')"
+    group_concat = (
+        "GROUP_CONCAT(d.nome, ', ')"
+        if is_sqlite()
+        else "STRING_AGG(d.nome, ', ' ORDER BY d.nome)"
+    )
     lista = fetch_all(
         f"""
         SELECT a.*,
                {group_concat} AS disciplinas
           FROM alunos a
-          LEFT JOIN matriculas m ON m.aluno_id = a.id AND m.ativo = 1
+          LEFT JOIN matriculas m ON m.aluno_id = a.id AND m.ativo = TRUE
           LEFT JOIN disciplinas d ON d.id = m.disciplina_id
          {filtro_nome}
          GROUP BY a.id
@@ -166,6 +216,7 @@ def alunos():
 
 
 @app.route("/alunos/<int:aluno_id>/editar", methods=["GET", "POST"])
+@login_required
 def editar_aluno(aluno_id):
     aluno = fetch_one("SELECT * FROM alunos WHERE id = %s", (aluno_id,))
     if not aluno:
@@ -197,6 +248,7 @@ def editar_aluno(aluno_id):
 
 
 @app.route("/professores", methods=["GET", "POST"])
+@login_required
 def professores():
     if request.method == "POST":
         try:
@@ -217,7 +269,11 @@ def professores():
             flash("Ja existe professor com este CPF ou registro.", "warning")
         return redirect(url_for("professores"))
 
-    group_concat = "GROUP_CONCAT(d.nome, ', ')" if is_sqlite() else "GROUP_CONCAT(d.nome ORDER BY d.nome SEPARATOR ', ')"
+    group_concat = (
+        "GROUP_CONCAT(d.nome, ', ')"
+        if is_sqlite()
+        else "STRING_AGG(d.nome, ', ' ORDER BY d.nome)"
+    )
     lista = fetch_all(
         f"""
         SELECT p.*,
@@ -232,6 +288,7 @@ def professores():
 
 
 @app.route("/professores/<int:professor_id>/editar", methods=["GET", "POST"])
+@login_required
 def editar_professor(professor_id):
     professor = fetch_one("SELECT * FROM professores WHERE id = %s", (professor_id,))
     if not professor:
@@ -263,6 +320,7 @@ def editar_professor(professor_id):
 
 
 @app.route("/disciplinas", methods=["GET", "POST"])
+@login_required
 def disciplinas():
     if request.method == "POST":
         professor_id = request.form.get("professor_id") or None
@@ -291,7 +349,7 @@ def disciplinas():
                COUNT(m.aluno_id) AS total_alunos
           FROM disciplinas d
           LEFT JOIN professores p ON p.id = d.professor_id
-          LEFT JOIN matriculas m ON m.disciplina_id = d.id AND m.ativo = 1
+          LEFT JOIN matriculas m ON m.disciplina_id = d.id AND m.ativo = TRUE
          GROUP BY d.id, p.nome
          ORDER BY d.nome
         """
@@ -302,6 +360,7 @@ def disciplinas():
 
 
 @app.route("/disciplinas/<int:disciplina_id>/editar", methods=["GET", "POST"])
+@login_required
 def editar_disciplina(disciplina_id):
     disciplina = fetch_one("SELECT * FROM disciplinas WHERE id = %s", (disciplina_id,))
     if not disciplina:
@@ -340,6 +399,7 @@ def editar_disciplina(disciplina_id):
 
 
 @app.route("/matriculas", methods=["GET", "POST"])
+@login_required
 def matriculas():
     if request.method == "POST":
         aluno_id = request.form["aluno_id"]
@@ -359,7 +419,7 @@ def matriculas():
             execute(
                 """
                 UPDATE matriculas
-                   SET ativo = 1, removido_em = NULL
+                   SET ativo = TRUE, removido_em = NULL
                  WHERE id = %s
                 """,
                 (matricula_existente["id"],),
@@ -370,7 +430,7 @@ def matriculas():
                 execute(
                     """
                     INSERT INTO matriculas (aluno_id, disciplina_id, ativo)
-                    VALUES (%s, %s, 1)
+                    VALUES (%s, %s, TRUE)
                     """,
                     (aluno_id, disciplina_id),
                 )
@@ -387,7 +447,7 @@ def matriculas():
           FROM matriculas m
           JOIN alunos a ON a.id = m.aluno_id
           JOIN disciplinas d ON d.id = m.disciplina_id
-         WHERE m.ativo = 1
+         WHERE m.ativo = TRUE
          ORDER BY d.nome, a.nome
         """
     )
@@ -400,6 +460,7 @@ def matriculas():
 
 
 @app.route("/matriculas/<int:matricula_id>/editar", methods=["GET", "POST"])
+@login_required
 def editar_matricula(matricula_id):
     matricula = fetch_one("SELECT * FROM matriculas WHERE id = %s", (matricula_id,))
     if not matricula:
@@ -414,7 +475,7 @@ def editar_matricula(matricula_id):
             execute(
                 """
                 UPDATE matriculas
-                   SET aluno_id = %s, disciplina_id = %s, ativo = 1, removido_em = NULL
+                   SET aluno_id = %s, disciplina_id = %s, ativo = TRUE, removido_em = NULL
                  WHERE id = %s
                 """,
                 (
@@ -437,11 +498,12 @@ def editar_matricula(matricula_id):
 
 
 @app.post("/matriculas/<int:matricula_id>/excluir")
+@login_required
 def excluir_matricula(matricula_id):
     execute(
         """
         UPDATE matriculas
-           SET ativo = 0, removido_em = CURRENT_TIMESTAMP
+           SET ativo = FALSE, removido_em = CURRENT_TIMESTAMP
          WHERE id = %s
         """,
         (matricula_id,),

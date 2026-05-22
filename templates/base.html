@@ -9,12 +9,23 @@
   <body>
     <header class="topbar">
       <a class="brand" href="{{ url_for('index') }}">Sistema Academico</a>
-      <nav>
-        <a href="{{ url_for('alunos') }}">Alunos</a>
-        <a href="{{ url_for('professores') }}">Professores</a>
-        <a href="{{ url_for('disciplinas') }}">Disciplinas</a>
-        <a href="{{ url_for('matriculas') }}">Matriculas</a>
-      </nav>
+      {% if session.get('usuario_id') %}
+        <nav>
+          <a href="{{ url_for('alunos') }}">Alunos</a>
+          <a href="{{ url_for('professores') }}">Professores</a>
+          <a href="{{ url_for('disciplinas') }}">Disciplinas</a>
+          <a href="{{ url_for('matriculas') }}">Matriculas</a>
+        </nav>
+        <div class="user-menu">
+          <span class="user-name">{{ session.get('usuario_nome') }}</span>
+          <span class="profile-badge profile-{{ session.get('usuario_perfil') }}">
+            {{ session.get('usuario_perfil') }}
+          </span>
+          <form action="{{ url_for('logout') }}" method="post" class="inline-form">
+            <button type="submit" class="logout-button">Sair</button>
+          </form>
+        </div>
+      {% endif %}
     </header>
 
     <main class="page">

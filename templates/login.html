@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Sistema Academico{% endblock %}
+
+{% block content %}
+  <section class="login-page">
+    <form method="post" class="panel login-panel">
+      <div class="login-heading">
+        <p class="eyebrow">Acesso</p>
+        <h1>Entrar</h1>
+      </div>
+
+      <label>
+        Username
+        <input type="text" name="username" autocomplete="username" required autofocus>
+      </label>
+
+      <label>
+        Senha
+        <input type="password" name="senha" autocomplete="current-password" required>
+        <p>LOGIN:admin <br> SENHA:admin123 </p>
+      </label>
+
+      <button type="submit">Entrar</button>
+    </form>
+  </section>
+{% endblock %}

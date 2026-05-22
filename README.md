@@ -1,21 +1,29 @@
 # Sistema Academico Web
 
 Interface web em Flask para cadastrar alunos, professores, disciplinas e
-matriculas usando MySQL.
+matriculas usando PostgreSQL.
 
-Se o MySQL nao estiver instalado ou iniciado, a aplicacao usa automaticamente
-um banco SQLite local chamado `sistema_academico.sqlite3`, para permitir testar
-a interface sem travar na conexao.
+Se o PostgreSQL nao estiver instalado ou iniciado, a aplicacao usa
+automaticamente um banco SQLite local chamado `sistema_academico.sqlite3`, para
+permitir testar a interface sem travar na conexao. Para obrigar PostgreSQL, use
+`POSTGRES_REQUIRED=1`.
 
-## 1. Criar o banco
+## 1. Criar o banco no pgAdmin4
 
-No MySQL, execute:
+No pgAdmin4, conecte no servidor local e crie um banco chamado:
 
-```bash
-mysql -u root -p < schema.sql
+```text
+sistema_academico
 ```
 
-O script cria o banco `sistema_academico`, as tabelas e alguns dados iniciais.
+Depois abra a Query Tool desse banco e execute o conteudo de `schema.sql`.
+
+Tambem da para fazer pelo terminal:
+
+```bash
+createdb -U postgres sistema_academico
+psql -U postgres -d sistema_academico -f schema.sql
+```
 
 ## 2. Instalar dependencias
 
@@ -28,19 +36,17 @@ python3 -m pip install -r requirements.txt
 Por padrao, a aplicacao usa:
 
 ```text
-MYSQL_HOST=localhost
-MYSQL_PORT=3306
-MYSQL_USER=root
-MYSQL_PASSWORD=
-MYSQL_DATABASE=sistema_academico
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=
+POSTGRES_DATABASE=sistema_academico
 ```
 
-Se precisar, defina as variaveis antes de iniciar:
+Se seu usuario `postgres` tiver senha, defina antes de iniciar:
 
 ```bash
-export MYSQL_USER=root
-export MYSQL_PASSWORD=sua_senha
-export MYSQL_DATABASE=sistema_academico
+export POSTGRES_PASSWORD=sua_senha
 ```
 
 ## 4. Rodar a interface
@@ -55,16 +61,16 @@ Depois acesse:
 http://127.0.0.1:5000
 ```
 
-Para obrigar o uso do MySQL e desativar o modo SQLite local:
+Para obrigar o uso do PostgreSQL e desativar o modo SQLite local:
 
 ```bash
-MYSQL_REQUIRED=1 python3 app.py
+POSTGRES_REQUIRED=1 python3 app.py
 ```
 
-## Arquivos adicionados
+## Arquivos principais
 
 - `app.py`: rotas da aplicacao Flask.
-- `db.py`: conexao e funcoes simples para consultar o MySQL.
-- `schema.sql`: criacao do banco e tabelas.
+- `db.py`: conexao e funcoes simples para consultar o PostgreSQL.
+- `schema.sql`: criacao das tabelas e dados iniciais.
 - `templates/`: telas HTML.
 - `static/styles.css`: estilo visual da interface.

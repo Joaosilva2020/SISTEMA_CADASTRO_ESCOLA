@@ -5,13 +5,13 @@
 {% block content %}
 <section class="panel error-panel">
   <h1>Nao foi possivel acessar o banco de dados</h1>
-  <p>O sistema web abriu corretamente, mas o MySQL nao respondeu em <code>localhost:3306</code>.</p>
-  <p>Para corrigir, instale ou inicie o MySQL e crie o banco com o arquivo <code>schema.sql</code>.</p>
+  <p>O sistema web abriu corretamente, mas o PostgreSQL nao respondeu em <code>localhost:5432</code>.</p>
+  <p>Para corrigir, instale ou inicie o PostgreSQL e crie o banco <code>sistema_academico</code>.</p>
   <ol class="steps">
-    <li>Instale o MySQL Community Server, caso ainda nao esteja instalado.</li>
-    <li>Inicie o servico do MySQL.</li>
-    <li>Execute <code>mysql -u root -p &lt; schema.sql</code> dentro da pasta do projeto.</li>
-    <li>Se o usuario tiver senha, rode a aplicacao com <code>MYSQL_PASSWORD=sua_senha python3 app.py</code>.</li>
+    <li>Instale o PostgreSQL e o pgAdmin4, caso ainda nao estejam instalados.</li>
+    <li>Inicie o servico do PostgreSQL.</li>
+    <li>No pgAdmin4, crie um banco chamado <code>sistema_academico</code>.</li>
+    <li>Rode a aplicacao com <code>POSTGRES_PASSWORD=sua_senha python3 app.py</code>.</li>
   </ol>
   <pre>{{ error }}</pre>
 </section>
