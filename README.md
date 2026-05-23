@@ -1,76 +1,28 @@
-# Sistema Academico Web
+Sistema de Cadastro Escolar - ADS
+Este projeto é um sistema de gestão acadêmica desenvolvido como parte do curso de Análise e Sistemas de Desenvolvimento (ADS). A aplicação permite o controle de alunos, disciplinas, professores e usuários, utilizando uma arquitetura moderna e escalável.
 
-Interface web em Flask para cadastrar alunos, professores, disciplinas e
-matriculas usando PostgreSQL.
+🚀 Acesso ao Sistema
+Você pode acessar a versão em produção clicando no link abaixo:
+👉 https://sistema-cadastro-escola.onrender.com/login
 
-Se o PostgreSQL nao estiver instalado ou iniciado, a aplicacao usa
-automaticamente um banco SQLite local chamado `sistema_academico.sqlite3`, para
-permitir testar a interface sem travar na conexao. Para obrigar PostgreSQL, use
-`POSTGRES_REQUIRED=1`.
+🛠️ Tecnologias Utilizadas
+O projeto foi construído utilizando as seguintes tecnologias:
 
-## 1. Criar o banco no pgAdmin4
+Backend: Python com Flask.
 
-No pgAdmin4, conecte no servidor local e crie um banco chamado:
+Banco de Dados: PostgreSQL (hospedado no Neon).
 
-```text
-sistema_academico
-```
+Hospedagem: Render (Web Service).
 
-Depois abra a Query Tool desse banco e execute o conteudo de `schema.sql`.
+Gerenciamento de Código: Git e GitHub.
 
-Tambem da para fazer pelo terminal:
+Segurança: Criptografia de senhas com scrypt.
 
-```bash
-createdb -U postgres sistema_academico
-psql -U postgres -d sistema_academico -f schema.sql
-```
+📋 Funcionalidades
+Autenticação: Sistema de login com perfis distintos (Admin, Professor, Aluno).
 
-## 2. Instalar dependencias
+Gestão de Alunos: Cadastro e acompanhamento de matrículas.
 
-```bash
-python3 -m pip install -r requirements.txt
-```
+Gestão Acadêmica: Controle de disciplinas e vinculação com professores.
 
-## 3. Configurar conexao
-
-Por padrao, a aplicacao usa:
-
-```text
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=
-POSTGRES_DATABASE=sistema_academico
-```
-
-Se seu usuario `postgres` tiver senha, defina antes de iniciar:
-
-```bash
-export POSTGRES_PASSWORD=sua_senha
-```
-
-## 4. Rodar a interface
-
-```bash
-python3 app.py
-```
-
-Depois acesse:
-
-```text
-http://127.0.0.1:5000
-```
-
-Para obrigar o uso do PostgreSQL e desativar o modo SQLite local:
-
-```bash
-POSTGRES_REQUIRED=1 python3 app.py
-```
-
-## Arquivos principais
-
-- `app.py`: rotas da aplicacao Flask.
-- `db.py`: conexao e funcoes simples para consultar o PostgreSQL.
-- `schema.sql`: criacao das tabelas e dados iniciais.
-- `templates/`: telas HTML.
-- `static/styles.css`: estilo visual da interface.
+Persistência de Dados: Integração completa com banco de dados em nuvem.
